@@ -1,0 +1,7 @@
+title: Frame Build Up
+detail: The frame in the center is built from three of the pieces marked A through D. Which piece is not used? You cannot overlap pieces or flip them over.
+choices:
+A
+B
+C
+D

@@ -1,0 +1,7 @@
+title: Wooden ABC
+detail: Which letter should replace the question mark?
+choices:
+L
+M
+V
+X

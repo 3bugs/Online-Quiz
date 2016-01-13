@@ -1,0 +1,7 @@
+title: Bisection
+detail: Which shape can be divided into two identical parts by cutting only along the lines?
+choices:
+A
+B
+C
+D

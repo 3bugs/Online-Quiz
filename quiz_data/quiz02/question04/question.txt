@@ -1,0 +1,6 @@
+title: Circle & Segment
+detail: Which shape has a bigger area?
+choices:
+A
+B
+Equal

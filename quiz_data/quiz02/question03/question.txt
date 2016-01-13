@@ -1,0 +1,7 @@
+title: Prism Folding N
+detail: Which pattern, when folded along the dotted lines, forms the prism shown in the center? No parts of the pattern should overlap each other.
+choices:
+A
+B
+C
+D

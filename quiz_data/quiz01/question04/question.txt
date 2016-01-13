@@ -1,0 +1,7 @@
+title: Square & Frame
+detail: Both square and frame are made up of individual cells. What is the cell difference between the two shapes?
+choices:
+0
+1
+2
+3

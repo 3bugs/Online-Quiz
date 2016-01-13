@@ -1,0 +1,7 @@
+title: Hidden Invention
+detail: Which invention is hidden in the lines?
+choices:
+Clock
+Mirror
+Piano
+Radio
