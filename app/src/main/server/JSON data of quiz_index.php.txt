@@ -1,0 +1,23 @@
+{
+    "success":1,
+    "quiz_data":[
+        {
+            "quiz_id":1,
+            "title":"ปริศนาภาพลับสมอง ชุดที่ 1",
+            "detail":"ปริศนาภาพลับสมอง จากหนังสือ 103 Puzzle Quizzes โดย The Grabarchuk Family",
+            "number_of_questions":5
+        },
+        {
+            "quiz_id":2,
+            "title":"ปริศนาภาพลับสมอง ชุดที่ 2",
+            "detail":"ปริศนาภาพลับสมอง จากหนังสือ 103 Puzzle Quizzes โดย The Grabarchuk Family",
+            "number_of_questions":4
+        },
+        {
+            "quiz_id":3,
+            "title":"ทดสอบความรู้พื้นฐานด้านคอมพิวเตอร์ สำหรับเด็กคอม",
+            "detail":"ทดสอบความรู้พื้นฐานด้านคอมพิวเตอร์ สำหรับเด็กคอม โดยพร้อมเลิศ หล่อวิจิตร",
+            "number_of_questions":10
+        }
+    ]
+}

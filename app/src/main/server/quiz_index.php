@@ -29,10 +29,10 @@ if ($result = $db->query($sql)) {
     if ($rowCount > 0) {
         while ($row = $result->fetch_assoc()) {
             $quiz = array();
-            $quiz["quiz_id"] = $row["quiz_id"];
+            $quiz["quiz_id"] = (int) $row["quiz_id"];
             $quiz["title"] = $row["title"];
             $quiz["detail"] = $row["detail"];
-			$quiz["number_of_questions"] = $row["number_of_questions"];
+			$quiz["number_of_questions"] = (int) $row["number_of_questions"];
 
             array_push($response["quiz_data"], $quiz);
         }
