@@ -10,7 +10,7 @@ $db = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 
 if (mysqli_connect_errno()) {
     $response["success"] = 0;
-    $response["message"] = "Database connection failed: " . mysqli_connect_error();
+    $response["message"] = "Database Connection Failed:\n" . mysqli_connect_error();
 	echo json_encode($response);
     exit();
 }
