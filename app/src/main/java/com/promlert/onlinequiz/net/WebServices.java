@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.promlert.onlinequiz.model.Choice;
+import com.promlert.onlinequiz.model.Question;
 import com.promlert.onlinequiz.model.Quiz;
 import com.promlert.onlinequiz.model.ResponseStatus;
 
@@ -34,12 +36,19 @@ public class WebServices {
     private static final String GET_QUESTIONS_URL = BASE_URL + "get_questions.php?quiz_id=%d";
 
     private static final OkHttpClient mClient = new OkHttpClient();
+
     private static ResponseStatus mResponseStatus;
     private static ArrayList<Quiz> mQuizArrayList;
+    private static ArrayList<Question> mQuestionArrayList;
 
     public interface GetQuizzesCallback {
         void onFailure(IOException e);
         void onResponse(ResponseStatus responseStatus, ArrayList<Quiz> quizArrayList);
+    }
+
+    public interface GetQuestionsCallback {
+        void onFailure(IOException e);
+        void onResponse(ResponseStatus responseStatus, ArrayList<Question> questionArrayList);
     }
 
     public static void getQuizzes(final GetQuizzesCallback callback) {
@@ -62,7 +71,7 @@ public class WebServices {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                delay(2);
+                delay(1);
 
                 final String jsonResult = response.body().string();
                 Log.d(TAG, jsonResult);
@@ -97,6 +106,64 @@ public class WebServices {
         });
     }
 
+    public static void getQuestions(int quizId, final GetQuestionsCallback callback) {
+        Request request = new Request.Builder()
+                .url(String.format(GET_QUESTIONS_URL, quizId))
+                .build();
+
+        mClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, final IOException e) {
+                new Handler(Looper.getMainLooper()).post(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onFailure(e);
+                            }
+                        }
+                );
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                delay(1);
+
+                final String jsonResult = response.body().string();
+                Log.d(TAG, jsonResult);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonResult);
+                    int success = jsonObject.getInt("success");
+
+                    if (success == 1) {
+                        mResponseStatus = new ResponseStatus(true, null);
+                        mQuestionArrayList = new ArrayList<>();
+
+                        parseJsonQuestionData(
+                                jsonObject.getJSONArray("question_data"),
+                                jsonObject.getInt("quiz_id")
+                        );
+                    } else if (success == 0) {
+                        mResponseStatus = new ResponseStatus(false, jsonObject.getString("message"));
+                        mQuestionArrayList = null;
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Error parsing JSON.");
+                    e.printStackTrace();
+                }
+
+                new Handler(Looper.getMainLooper()).post(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onResponse(mResponseStatus, mQuestionArrayList);
+                            }
+                        }
+                );
+            }
+        });
+    }
+
     private static void delay(int second) {
         try {
             Thread.sleep(second * 1000);
@@ -116,6 +183,41 @@ public class WebServices {
                     jsonQuiz.getInt("number_of_questions")
             );
             mQuizArrayList.add(quiz);
+        }
+    }
+
+    private static void parseJsonQuestionData(JSONArray jsonArrayQuestionData, int quizId) throws JSONException {
+        for (int i = 0; i < jsonArrayQuestionData.length(); i++) {
+            JSONObject jsonQuestion = jsonArrayQuestionData.getJSONObject(i);
+
+            String pictureFilename = null;
+            if (!jsonQuestion.isNull("picture")) {
+                pictureFilename = IMAGES_BASE_URL
+                        + String.valueOf(quizId).trim()
+                        + "/"
+                        + jsonQuestion.getString("picture");
+            }
+
+            Question question = new Question(
+                    jsonQuestion.getInt("question_id"),
+                    jsonQuestion.getString("title"),
+                    jsonQuestion.getString("detail").replace("\\n", "\n"),
+                    pictureFilename
+            );
+
+            JSONArray jsonArrayChoiceData = jsonQuestion.getJSONArray("choice_data");
+            for (int j = 0; j < jsonArrayChoiceData.length(); j++) {
+                JSONObject jsonChoice = jsonArrayChoiceData.getJSONObject(j);
+
+                Choice choice = new Choice(
+                        jsonChoice.getInt("choice_id"),
+                        jsonChoice.getString("text"),
+                        jsonChoice.getBoolean("is_answer")
+                );
+                question.choiceArrayList.add(choice);
+            }
+
+            mQuestionArrayList.add(question);
         }
     }
 }
