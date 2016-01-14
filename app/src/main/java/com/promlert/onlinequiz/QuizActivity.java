@@ -1,5 +1,7 @@
 package com.promlert.onlinequiz;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -62,19 +64,58 @@ public class QuizActivity extends AppCompatActivity {
         mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
+        final View coordinatorLayout = findViewById(R.id.main_content);
+
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setVisibility(View.GONE);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isQuizComplete()) {
+                    new AlertDialog.Builder(QuizActivity.this)
+                            .setTitle("ต้องการส่งข้อมูล?")
+                            .setPositiveButton("ส่ง", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    WebServices.setUserGuesses(1, mQuizId, mQuestionArrayList,
+                                            new WebServices.SetUserGuessesCallback() {
+                                                @Override
+                                                public void onFailure(IOException e) {
+                                                    String msg = "Network Connection Error:\n" + e.getMessage();
+                                                    Log.e(TAG, msg);
+                                                    Snackbar.make(
+                                                            coordinatorLayout,
+                                                            msg,
+                                                            Snackbar.LENGTH_LONG
+                                                    ).show();
+                                                }
+
+                                                @Override
+                                                public void onResponse(ResponseStatus responseStatus) {
+                                                    if (responseStatus.success) {
+                                                        Toast.makeText(
+                                                                QuizActivity.this,
+                                                                responseStatus.message,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        finish();
+                                                    } else {
+                                                        Snackbar.make(
+                                                                coordinatorLayout,
+                                                                responseStatus.message,
+                                                                Snackbar.LENGTH_LONG
+                                                        ).show();
+                                                    }
+                                                }
+                                            });
+                                }
+                            })
+                            .setNegativeButton("ยกเลิก", null)
+                            .show();
 
                 } else {
-                    Snackbar.make(
-                            findViewById(R.id.main_content),
-                            "คุณยังทำแบบทดสอบไม่ครบทุกข้อ",
-                            Snackbar.LENGTH_SHORT
-                    ).show();
+                    Snackbar.make(coordinatorLayout, "คุณยังทำแบบทดสอบไม่ครบทุกข้อ", Snackbar.LENGTH_LONG ).show();
                 }
             }
         });
