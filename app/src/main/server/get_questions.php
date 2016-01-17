@@ -8,8 +8,8 @@ $response = array();
 if (!isset($_GET['quiz_id'])) {
     $response["success"] = 0;
     $response["message"] = "Required GET parameter is missing.";
-	echo json_encode($response);
-	exit();
+    echo json_encode($response);
+    exit();
 }
 
 require_once 'db_config.php';
@@ -18,7 +18,7 @@ $db = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 if (mysqli_connect_errno()) {
     $response["success"] = 0;
     $response["message"] = "Database connection failed: " . mysqli_connect_error();
-	echo json_encode($response);
+    echo json_encode($response);
     exit();
 }
 
