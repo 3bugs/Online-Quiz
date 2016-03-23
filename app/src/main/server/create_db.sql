@@ -5,7 +5,7 @@ CREATE TABLE quizzes (
     quiz_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     title TEXT,
     detail TEXT
-) ENGINE=InnoDB CHARACTER SET=utf8;
+) CHARACTER SET=utf8;
 
 CREATE TABLE questions (
     question_id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -13,21 +13,21 @@ CREATE TABLE questions (
     title TEXT,
     detail TEXT,
     picture TEXT
-) ENGINE=InnoDB CHARACTER SET=utf8;
+) CHARACTER SET=utf8;
 
 CREATE TABLE choices (
     choice_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     question_id INTEGER,
     text TEXT,
     is_answer BOOLEAN
-) ENGINE=InnoDB CHARACTER SET=utf8;
+) CHARACTER SET=utf8;
 
 CREATE TABLE users (
     user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     name TEXT,
     password TEXT,
     email TEXT
-) ENGINE=InnoDB CHARACTER SET=utf8;
+) CHARACTER SET=utf8;
 
 CREATE TABLE user_guesses (
     user_id INTEGER,
@@ -35,4 +35,4 @@ CREATE TABLE user_guesses (
     question_id INTEGER,
     choice_id INTEGER,
     PRIMARY KEY(user_id, quiz_id, question_id)
-) ENGINE=InnoDB CHARACTER SET=utf8;
+) CHARACTER SET=utf8;

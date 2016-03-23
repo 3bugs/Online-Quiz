@@ -1,3 +1,5 @@
+USE online_quiz;
+
 INSERT INTO `quizzes` VALUES (1, 'ปริศนาภาพลับสมอง ชุดที่ 1', 'ปริศนาภาพลับสมอง จากหนังสือ 103 Puzzle Quizzes โดย The Grabarchuk Family');
 INSERT INTO `quizzes` VALUES (2, 'ปริศนาภาพลับสมอง ชุดที่ 2', 'ปริศนาภาพลับสมอง จากหนังสือ 103 Puzzle Quizzes โดย The Grabarchuk Family');
 INSERT INTO `quizzes` VALUES (3, 'ทดสอบความรู้พื้นฐานด้านคอมพิวเตอร์ สำหรับเด็กคอม', 'ทดสอบความรู้พื้นฐานด้านคอมพิวเตอร์ สำหรับเด็กคอม โดยพร้อมเลิศ หล่อวิจิตร');

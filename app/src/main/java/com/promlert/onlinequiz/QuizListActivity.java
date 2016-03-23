@@ -8,7 +8,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +19,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.promlert.onlinequiz.model.LoadDataCallback;
 import com.promlert.onlinequiz.model.Quiz;
-import com.promlert.onlinequiz.model.ResponseStatus;
-import com.promlert.onlinequiz.net.WebServices;
+import com.promlert.onlinequiz.model.Quizzes;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class QuizListActivity extends AppCompatActivity
@@ -37,8 +35,7 @@ public class QuizListActivity extends AppCompatActivity
     private ProgressBar mProgressBar;
     private View mRetryLayout;
 
-    private ArrayList<Quiz> mQuizArrayList = new ArrayList<>();
-    private ArrayAdapter<Quiz> mAdapter;
+    private Quizzes mQuizzes = Quizzes.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,16 +64,16 @@ public class QuizListActivity extends AppCompatActivity
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRetryLayout = findViewById(R.id.retry_layout);
 
-        mAdapter = new ArrayAdapter<Quiz>(
+        final ArrayAdapter<Quiz> adapter = new ArrayAdapter<Quiz>(
                 QuizListActivity.this,
                 R.layout.quiz_item,
-                mQuizArrayList
+                new ArrayList<Quiz>()
         );
-        mQuizzesListView.setAdapter(mAdapter);
+        mQuizzesListView.setAdapter(adapter);
         mQuizzesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Quiz selectedQuiz = mQuizArrayList.get(position);
+                Quiz selectedQuiz = adapter.getItem(position);
 
                 Toast.makeText(
                         QuizListActivity.this,
@@ -85,7 +82,7 @@ public class QuizListActivity extends AppCompatActivity
                 ).show();
 
                 Intent intent = new Intent(QuizListActivity.this, QuizActivity.class);
-                intent.putExtra("quiz_id", selectedQuiz.quizId);
+                intent.putExtra(QuizActivity.KEY_EXTRA_QUIZ_ID, selectedQuiz.quizId);
                 startActivity(intent);
             }
         });
@@ -105,41 +102,27 @@ public class QuizListActivity extends AppCompatActivity
         mQuizzesListView.setVisibility(View.GONE);
         mRetryLayout.setVisibility(View.GONE);
 
-        WebServices.getQuizzes(new WebServices.GetQuizzesCallback() {
+        mQuizzes.load(new LoadDataCallback() {
             @Override
-            public void onFailure(IOException e) {
+            public void onFailure(String errMessage) {
                 mMainLayout.setBackgroundResource(0); // remove background
                 mProgressBar.setVisibility(View.GONE);
                 mQuizzesListView.setVisibility(View.GONE);
                 mRetryLayout.setVisibility(View.VISIBLE);
 
-                String msg = "Network Connection Error:\n" + e.getMessage();
                 TextView errorMessageTextView = (TextView) findViewById(R.id.error_message);
-                errorMessageTextView.setText(msg);
-                Log.e(TAG, msg);
-                Toast.makeText(QuizListActivity.this, msg, Toast.LENGTH_LONG).show();
+                errorMessageTextView.setText(errMessage);
             }
 
             @Override
-            public void onResponse(ResponseStatus responseStatus, ArrayList<Quiz> quizArrayList) {
-                if (responseStatus.success) {
-                    mMainLayout.setBackgroundResource(R.drawable.background); // set background
-                    mProgressBar.setVisibility(View.GONE);
-                    mQuizzesListView.setVisibility(View.VISIBLE);
-                    mRetryLayout.setVisibility(View.GONE);
+            public void onSuccess() {
+                mMainLayout.setBackgroundResource(R.drawable.background); // set background
+                mProgressBar.setVisibility(View.GONE);
+                mQuizzesListView.setVisibility(View.VISIBLE);
+                mRetryLayout.setVisibility(View.GONE);
 
-                    mAdapter.addAll(quizArrayList);
-                } else {
-                    mMainLayout.setBackgroundResource(0); // remove background
-                    mProgressBar.setVisibility(View.GONE);
-                    mQuizzesListView.setVisibility(View.GONE);
-                    mRetryLayout.setVisibility(View.VISIBLE);
-
-                    TextView errorMessageTextView = (TextView) findViewById(R.id.error_message);
-                    errorMessageTextView.setText(responseStatus.message);
-                    Log.e(TAG, responseStatus.message);
-                    Toast.makeText(QuizListActivity.this, responseStatus.message, Toast.LENGTH_LONG).show();
-                }
+                ArrayAdapter<Quiz> adapter = (ArrayAdapter<Quiz>) mQuizzesListView.getAdapter();
+                adapter.addAll(mQuizzes.getList());
             }
         });
     }

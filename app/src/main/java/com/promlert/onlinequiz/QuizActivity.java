@@ -19,16 +19,18 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.promlert.onlinequiz.model.LoadDataCallback;
 import com.promlert.onlinequiz.model.Question;
+import com.promlert.onlinequiz.model.Questions;
 import com.promlert.onlinequiz.model.ResponseStatus;
 import com.promlert.onlinequiz.net.WebServices;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class QuizActivity extends AppCompatActivity {
 
     private static final String TAG = QuizActivity.class.getSimpleName();
+    protected static final String KEY_EXTRA_QUIZ_ID = "quiz_id";
 
     private QuestionsPagerAdapter mAdapter;
     private TabLayout mTabLayout;
@@ -37,30 +39,22 @@ public class QuizActivity extends AppCompatActivity {
     private FloatingActionButton mFab;
 
     private int mQuizId;
-    protected ArrayList<Question> mQuestionArrayList = new ArrayList<>();
+    private Questions mQuestions = Questions.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-/*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-*/
-
         Intent intent = getIntent();
-        mQuizId = intent.getIntExtra("quiz_id", 0);
+        mQuizId = intent.getIntExtra(KEY_EXTRA_QUIZ_ID, 0);
 
         setupViews();
         loadQuestions();
     }
 
     private void setupViews() {
-        mAdapter = new QuestionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mAdapter);
-
         mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
@@ -77,7 +71,7 @@ public class QuizActivity extends AppCompatActivity {
                             .setPositiveButton("ส่ง", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    WebServices.setUserGuesses(1, mQuizId, mQuestionArrayList,
+                                    WebServices.setUserGuesses(1, mQuizId, mQuestions.getList(),
                                             new WebServices.SetUserGuessesCallback() {
                                                 @Override
                                                 public void onFailure(IOException e) {
@@ -125,39 +119,24 @@ public class QuizActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.VISIBLE);
         mViewPager.setVisibility(View.GONE);
 
-        WebServices.getQuestions(mQuizId, new WebServices.GetQuestionsCallback() {
+        mQuestions.load(mQuizId, new LoadDataCallback() {
             @Override
-            public void onFailure(IOException e) {
+            public void onFailure(String errMessage) {
                 mProgressBar.setVisibility(View.GONE);
                 mViewPager.setVisibility(View.GONE);
 
-                String msg = "Network Connection Error:\n" + e.getMessage();
-                //TextView errorMessageTextView = (TextView) findViewById(R.id.error_message);
-                //errorMessageTextView.setText(msg);
-                Log.e(TAG, msg);
-                Toast.makeText(QuizActivity.this, msg, Toast.LENGTH_LONG).show();
+                Log.e(TAG, errMessage);
+                Toast.makeText(QuizActivity.this, errMessage, Toast.LENGTH_LONG).show();
             }
 
             @Override
-            public void onResponse(ResponseStatus responseStatus, ArrayList<Question> questionArrayList) {
-                if (responseStatus.success) {
-                    mProgressBar.setVisibility(View.GONE);
-                    mViewPager.setVisibility(View.VISIBLE);
+            public void onSuccess() {
+                mProgressBar.setVisibility(View.GONE);
+                mViewPager.setVisibility(View.VISIBLE);
 
-                    //Collections.copy(mQuestionArrayList, questionArrayList);
-                    mQuestionArrayList.addAll(questionArrayList);
-                    mAdapter.notifyDataSetChanged();
-                    mTabLayout.setupWithViewPager(mViewPager);
-
-                } else {
-                    mProgressBar.setVisibility(View.GONE);
-                    mViewPager.setVisibility(View.GONE);
-
-                    //TextView errorMessageTextView = (TextView) findViewById(R.id.error_message);
-                    //errorMessageTextView.setText(responseStatus.message);
-                    Log.e(TAG, responseStatus.message);
-                    Toast.makeText(QuizActivity.this, responseStatus.message, Toast.LENGTH_LONG).show();
-                }
+                mAdapter = new QuestionsPagerAdapter(getSupportFragmentManager());
+                mViewPager.setAdapter(mAdapter);
+                mTabLayout.setupWithViewPager(mViewPager);
             }
         });
     }
@@ -171,7 +150,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private boolean isQuizComplete() {
-        for (Question question : mQuestionArrayList) {
+        for (Question question : Questions.getInstance().getList()) {
             if (question.getSelectedChoiceId() == Question.NO_CHOICE_SELECTED) {
                 return false;
             }
@@ -209,7 +188,7 @@ public class QuizActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return mQuestionArrayList.size();
+            return mQuestions.getList().size();
         }
 
         @Override

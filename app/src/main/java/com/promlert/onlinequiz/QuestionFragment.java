@@ -14,8 +14,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.promlert.onlinequiz.model.Choice;
 import com.promlert.onlinequiz.model.Question;
-
-import java.util.ArrayList;
+import com.promlert.onlinequiz.model.Questions;
 
 /**
  * Created by Promlert on 1/14/2016.
@@ -31,6 +30,7 @@ public class QuestionFragment extends Fragment {
     private TextView mQuestionDetailTextView;
     private RadioGroup mChoicesRadioGroup;
 
+    private Questions mQuestions;
     private int mQuestionItemPosition;
 
     public QuestionFragment() {
@@ -48,6 +48,7 @@ public class QuestionFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mQuestions = Questions.getInstance();
         Bundle args = getArguments();
         mQuestionItemPosition = args.getInt(ARG_QUESTION_ITEM_POSITION);
     }
@@ -68,8 +69,7 @@ public class QuestionFragment extends Fragment {
         mQuestionDetailTextView = (TextView) view.findViewById(R.id.question_detail_text_view);
         mChoicesRadioGroup = (RadioGroup) view.findViewById(R.id.choices_radio_group);
 
-        ArrayList<Question> questionArrayList = ((QuizActivity) getActivity()).mQuestionArrayList;
-        final Question question = questionArrayList.get(mQuestionItemPosition);
+        final Question question = mQuestions.getList().get(mQuestionItemPosition);
 
         mQuestionTitleTextView.setText(question.title);
         mQuestionDetailTextView.setText(question.detail);
