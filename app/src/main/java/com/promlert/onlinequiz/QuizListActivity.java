@@ -64,7 +64,7 @@ public class QuizListActivity extends AppCompatActivity
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRetryLayout = findViewById(R.id.retry_layout);
 
-        final ArrayAdapter<Quiz> adapter = new ArrayAdapter<Quiz>(
+        final ArrayAdapter<Quiz> adapter = new ArrayAdapter<>(
                 QuizListActivity.this,
                 R.layout.quiz_item,
                 new ArrayList<Quiz>()

@@ -26,6 +26,7 @@ import com.promlert.onlinequiz.model.ResponseStatus;
 import com.promlert.onlinequiz.net.WebServices;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -39,15 +40,23 @@ public class QuizActivity extends AppCompatActivity {
     private FloatingActionButton mFab;
 
     private int mQuizId;
-    private Questions mQuestions = Questions.getInstance();
+    private Questions mQuestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz);
+        
+        /* *************************************************************
+         * ต้องสร้าง instance ของ Questions ก่อนเรียก super.onCreate
+         * เพราะ super.onCreate จะมีการ restore แฟรกเมนต์ กรณี config change
+         * และในแฟรกเมนต์ เราจะอ่านข้อมูลจาก mQuestions
+         * *************************************************************/
 
         Intent intent = getIntent();
         mQuizId = intent.getIntExtra(KEY_EXTRA_QUIZ_ID, 0);
+        mQuestions = Questions.getInstance(mQuizId);
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_quiz);
 
         setupViews();
         loadQuestions();
@@ -109,7 +118,7 @@ public class QuizActivity extends AppCompatActivity {
                             .show();
 
                 } else {
-                    Snackbar.make(coordinatorLayout, "คุณยังทำแบบทดสอบไม่ครบทุกข้อ", Snackbar.LENGTH_LONG ).show();
+                    Snackbar.make(coordinatorLayout, "คุณยังทำแบบทดสอบไม่ครบทุกข้อ", Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -150,7 +159,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private boolean isQuizComplete() {
-        for (Question question : Questions.getInstance().getList()) {
+        for (Question question : Questions.getInstance(mQuizId).getList()) {
             if (question.getSelectedChoiceId() == Question.NO_CHOICE_SELECTED) {
                 return false;
             }
@@ -173,6 +182,10 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public ArrayList<Question> getQuestionList() {
+        return mQuestions.getList();
     }
 
     public class QuestionsPagerAdapter extends FragmentPagerAdapter {

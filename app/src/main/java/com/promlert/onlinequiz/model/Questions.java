@@ -12,13 +12,15 @@ public class Questions {
 
     private static Questions mInstance;
     private ArrayList<Question> mQuestionArrayList;
+    private int mQuizId;
 
     private Questions() {
     }
 
-    public static Questions getInstance() {
-        if (mInstance == null) {
+    public static Questions getInstance(int quizId) {
+        if (mInstance == null || mInstance.mQuizId != quizId) {
             mInstance = new Questions();
+            mInstance.mQuizId = quizId;
         }
         return mInstance;
     }

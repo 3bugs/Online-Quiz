@@ -14,7 +14,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.promlert.onlinequiz.model.Choice;
 import com.promlert.onlinequiz.model.Question;
-import com.promlert.onlinequiz.model.Questions;
+
+import java.util.ArrayList;
 
 /**
  * Created by Promlert on 1/14/2016.
@@ -22,15 +23,9 @@ import com.promlert.onlinequiz.model.Questions;
 public class QuestionFragment extends Fragment {
 
     private static final String TAG = QuestionFragment.class.getSimpleName();
-
     private static final String ARG_QUESTION_ITEM_POSITION = "question_item_position";
 
-    private TextView mQuestionTitleTextView;
-    private ImageView mQuestionPictureImageView;
-    private TextView mQuestionDetailTextView;
-    private RadioGroup mChoicesRadioGroup;
-
-    private Questions mQuestions;
+    private ArrayList<Question> mQuestionList;
     private int mQuestionItemPosition;
 
     public QuestionFragment() {
@@ -48,7 +43,7 @@ public class QuestionFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mQuestions = Questions.getInstance();
+        mQuestionList = ((QuizActivity) getActivity()).getQuestionList();
         Bundle args = getArguments();
         mQuestionItemPosition = args.getInt(ARG_QUESTION_ITEM_POSITION);
     }
@@ -56,44 +51,43 @@ public class QuestionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_question, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_question, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mQuestionTitleTextView = (TextView) view.findViewById(R.id.question_title_text_view);
-        mQuestionPictureImageView = (ImageView) view.findViewById(R.id.question_picture_image_view);
-        mQuestionDetailTextView = (TextView) view.findViewById(R.id.question_detail_text_view);
-        mChoicesRadioGroup = (RadioGroup) view.findViewById(R.id.choices_radio_group);
+        TextView questionTitleTextView = (TextView) view.findViewById(R.id.question_title_text_view);
+        ImageView questionPictureImageView = (ImageView) view.findViewById(R.id.question_picture_image_view);
+        TextView questionDetailTextView = (TextView) view.findViewById(R.id.question_detail_text_view);
+        RadioGroup choicesRadioGroup = (RadioGroup) view.findViewById(R.id.choices_radio_group);
 
-        final Question question = mQuestions.getList().get(mQuestionItemPosition);
+        final Question question = mQuestionList.get(mQuestionItemPosition);
 
-        mQuestionTitleTextView.setText(question.title);
-        mQuestionDetailTextView.setText(question.detail);
+        questionTitleTextView.setText(question.title);
+        questionDetailTextView.setText(question.detail);
 
         if (question.picture == null) {
-            mQuestionPictureImageView.setVisibility(View.GONE);
+            questionPictureImageView.setVisibility(View.GONE);
         } else {
-            mQuestionPictureImageView.setVisibility(View.VISIBLE);
-            Glide.with(this).load(question.picture).into(mQuestionPictureImageView);
+            questionPictureImageView.setVisibility(View.VISIBLE);
+            Glide.with(this).load(question.picture).into(questionPictureImageView);
         }
 
         LayoutInflater inflater = getLayoutInflater(null);
 
         for (Choice choice : question.choiceArrayList) {
             RadioButton choiceRadioButton = (RadioButton)
-                    inflater.inflate(R.layout.choice_button, mChoicesRadioGroup, false);
+                    inflater.inflate(R.layout.choice_button, choicesRadioGroup, false);
 
             choiceRadioButton.setId(choice.choiceId);
             choiceRadioButton.setText(choice.text);
 
-            mChoicesRadioGroup.addView(choiceRadioButton);
+            choicesRadioGroup.addView(choiceRadioButton);
         }
 
-        mChoicesRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        choicesRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 Toast.makeText(getActivity(), "Choice ID: " + checkedId, Toast.LENGTH_SHORT).show();
