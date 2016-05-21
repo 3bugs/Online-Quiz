@@ -44,7 +44,7 @@ public class QuizActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        
+
         /* *************************************************************
          * ต้องสร้าง instance ของ Questions ก่อนเรียก super.onCreate
          * เพราะ super.onCreate จะมีการ restore แฟรกเมนต์ กรณี config change
